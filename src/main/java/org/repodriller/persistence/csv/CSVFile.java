@@ -18,14 +18,31 @@ package org.repodriller.persistence.csv;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import org.apache.commons.lang3.StringEscapeUtils;
-
 import org.repodriller.persistence.PersistenceMechanism;
 
 public class CSVFile implements PersistenceMechanism {
 
 	private PrintStream ps;
+	private String[] header= new String[0];
+	
+	public CSVFile (String fileName, String [] header){
+		this(fileName,header,false);
+	}
 
+	public CSVFile(String fileName, String[] header, boolean append ){
+		this.header = header;
+		try {
+			ps = new PrintStream(new FileOutputStream(fileName, append));
+			String headers=Arrays.toString(header);
+			headers=headers.substring(1, headers.length()-1);
+			ps.println(headers);		
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public CSVFile(String fileName) {
 		this(fileName, false);
 	}
@@ -44,10 +61,14 @@ public class CSVFile implements PersistenceMechanism {
 
 	public CSVFile(String path, String name, boolean append) {
 		this(verifyPath(path) + name, append);
-	}
-
+	}		
+	
 	@Override
-	public synchronized void write(Object... line) {
+	public synchronized void write(Object... line) throws CSVFileFormatException {
+			
+		if(!(line.length == header.length))
+			throw new CSVFileFormatException ("CSV Header Columns Number Differs From Writer Columns Number.\n");
+		
 		boolean first = true;
 		for(Object o : line) {
 			if(!first) ps.print(",");
