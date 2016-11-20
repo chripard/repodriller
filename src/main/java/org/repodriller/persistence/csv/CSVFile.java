@@ -19,6 +19,8 @@ package org.repodriller.persistence.csv;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.repodriller.persistence.PersistenceMechanism;
 
@@ -65,7 +67,7 @@ public class CSVFile implements PersistenceMechanism {
 	
 	@Override
 	public synchronized void write(Object... line) throws CSVFileFormatException {
-			
+		if (header.length == 0) header = ArrayUtils.clone(new String[line.length]);
 		if(!(line.length == header.length))
 			throw new CSVFileFormatException ("CSV Header Columns Number Differs From Writer Columns Number.\n");
 		
