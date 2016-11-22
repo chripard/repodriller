@@ -68,7 +68,7 @@ public class CSVFile implements PersistenceMechanism {
 	@Override
 	public synchronized void write(Object... line) throws CSVFileFormatException {
 		if (header.length == 0) header = ArrayUtils.clone(new String[line.length]);
-		if(!(line.length == header.length))
+		if(line.length != header.length)
 			throw new CSVFileFormatException ("CSV Header Columns Number Differs From Writer Columns Number.\n");
 		
 		boolean first = true;

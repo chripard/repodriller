@@ -162,13 +162,19 @@ public class RepositoryMining {
 	private void processChangeSet(SCMRepository repo, ChangeSet cs) {
 		Commit commit = repo.getScm().getCommit(cs.getId());
 		
+		if(!filtersAccept(commit)) {
+			log.info("-> Filtered");
+			return;
+		}
+		
 		for(Map.Entry<CommitVisitor, PersistenceMechanism> entry : visitors.entrySet()) {
 			CommitVisitor visitor = entry.getKey();
 			PersistenceMechanism writer = entry.getValue();
 
 			try {
 					visitor.process(repo, commit, writer);
-					log.info("-> Processing " + commit.getHash() + " with " + visitor.name());			
+					log.info("-> Processing " + commit.getHash() + " with " + visitor.name());		
+					
 			} catch (CSVFileFormatException e) {
 					log.fatal(e);
 					System.exit(-1);				
@@ -183,10 +189,7 @@ public class RepositoryMining {
 								" from " + commit.getAuthor().getName() + 
 								" with " + commit.getModifications().size() + " modifications");
 			
-			if(!filtersAccept(commit)) {
-					log.info("-> Filtered");
-					return;
-			}
+			
 		}
 	}
 
